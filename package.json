@@ -1,26 +1,38 @@
 {
-  "devDependencies": {
-    "@babel/cli": "^7.24.8",
-    "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.3",
-    "prettier": "3.3.3",
-    "typescript": "^5.5.4"
-  },
-  "name": "consumables-sdk",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "Sdk to create consumable's contracts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Devconeta/consumables-sdk.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Devconeta/consumables-sdk/issues"
-  },
-  "homepage": "https://github.com/Devconeta/consumables-sdk#readme"
+    "devDependencies": {
+        "@babel/cli": "^7.24.8",
+        "@babel/core": "^7.25.2",
+        "@babel/preset-env": "^7.25.3",
+        "@eslint/js": "^9.8.0",
+        "@types/node": "^22.1.0",
+        "@typescript-eslint/eslint-plugin": "^8.0.0",
+        "@typescript-eslint/parser": "^8.0.0",
+        "eslint": "^9.8.0",
+        "nodemon": "^3.1.4",
+        "prettier": "^3.3.3",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.5.4"
+    },
+    "name": "consumables-sdk",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "ts-node index.ts",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
+        "prettier:fix": "prettier --write src"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "Sdk to create consumable's contracts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Devconeta/consumables-sdk.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Devconeta/consumables-sdk/issues"
+    },
+    "homepage": "https://github.com/Devconeta/consumables-sdk#readme"
 }
