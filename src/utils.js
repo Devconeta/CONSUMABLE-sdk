@@ -1,9 +1,18 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadConsumableDumpFromFile = exports.saveSecrets = exports.saveConsumableDumpToFile = exports.generateSecrets = exports.generateTree = exports.generateWallets = exports.encode = void 0;
+exports.fundSecretsFromFile = exports.fundSecretsWithEth = exports.loadConsumableDumpFromFile = exports.saveSecrets = exports.saveConsumableDumpToFile = exports.generateSecrets = exports.generateTree = exports.generateWallets = exports.encode = void 0;
 const ethers_1 = require("ethers");
 const merkle_tree_1 = require("@openzeppelin/merkle-tree");
 const path_1 = __importDefault(require("path"));
@@ -66,3 +75,35 @@ const loadConsumableDumpFromFile = (fileName) => {
     };
 };
 exports.loadConsumableDumpFromFile = loadConsumableDumpFromFile;
+const fundSecretsWithEth = (secrets, funderPrivateKey, chainId, rpcUrl, amount // Amount of ETH to send to each wallet (in ETH, not Wei)
+) => __awaiter(void 0, void 0, void 0, function* () {
+    const provider = new ethers_1.JsonRpcProvider(rpcUrl, { chainId });
+    const funder = new ethers_1.Wallet(funderPrivateKey, provider);
+    const amountWei = (0, ethers_1.parseEther)(amount);
+    console.log(`Funding ${secrets.length} wallets with ${amount} ETH each`);
+    const promises = secrets.map((secret, index) => __awaiter(void 0, void 0, void 0, function* () {
+        const { privateKey } = JSON.parse(Buffer.from(secret, 'base64').toString('utf-8'));
+        const recipientWallet = new ethers_1.Wallet(privateKey, provider);
+        console.log(`Funding wallet ${index + 1}: ${recipientWallet.address}`);
+        const tx = yield funder.sendTransaction({
+            to: recipientWallet.address,
+            value: amountWei
+        });
+        yield tx.wait();
+        console.log(`Funded wallet ${index + 1}: ${recipientWallet.address} with ${amount} ETH`);
+    }));
+    try {
+        yield Promise.all(promises);
+        console.log("All wallets funded successfully");
+    }
+    catch (error) {
+        console.error("Error funding wallets:", error);
+        throw error;
+    }
+});
+exports.fundSecretsWithEth = fundSecretsWithEth;
+const fundSecretsFromFile = (fileName, funderPrivateKey, chainId, rpcUrl, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    const { pks } = JSON.parse((0, fs_1.readFileSync)(fileName, "utf8"));
+    yield (0, exports.fundSecretsWithEth)(pks, funderPrivateKey, chainId, rpcUrl, amount);
+});
+exports.fundSecretsFromFile = fundSecretsFromFile;

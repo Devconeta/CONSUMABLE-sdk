@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateSecretsCommand = exports.generateWalletsCommand = void 0;
 const utils_1 = require("./src/utils");
@@ -63,4 +72,25 @@ program.command("generateSecrets")
     const secrets = (0, exports.generateSecretsCommand)(dumpFilename, contractAddress, methodName, methodArguments, chainId);
     console.log(secrets);
 });
+program.command("fundWallets")
+    .description("Fund wallets from a dump file with ETH")
+    .argument("<dumpFilename>", "Private keys dump file")
+    .argument("<funderPrivateKey>", "Private key of the funding wallet")
+    .argument("<chainId>", "Chain ID of the network")
+    .argument("<rpcUrl>", "RPC URL of the network")
+    .argument("<amount>", "Amount of ETH to send to each wallet")
+    .action((dumpFilename, funderPrivateKey, chainId, rpcUrl, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    const chainIdNum = parseInt(chainId, 10);
+    if (isNaN(chainIdNum)) {
+        console.error("Chain ID must be a valid number");
+        return;
+    }
+    try {
+        yield (0, utils_1.fundSecretsFromFile)(dumpFilename, funderPrivateKey, chainIdNum, rpcUrl, amount);
+        console.log(`Successfully funded wallets from ${dumpFilename} with ${amount} ETH each`);
+    }
+    catch (error) {
+        console.error("Error funding wallets:", error);
+    }
+}));
 program.parse();
