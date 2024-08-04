@@ -108,6 +108,8 @@
     "paths": {
       "@utils/*": ["src/utils/*"],
       "@types/*": ["src/types/*"],
-    } 
-  }
+    },
+    "outDir": "dist"
+  },
+  "include": ["src/**/*", "bin/**/*"]
 }

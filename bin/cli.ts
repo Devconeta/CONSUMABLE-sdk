@@ -1,5 +1,7 @@
-import { MethodArgument } from './src/types';
-import { generateTree, generateWallets, saveConsumableDumpToFile, loadConsumableDumpFromFile, generateSecrets, saveSecrets, fundSecretsFromFile } from './src/utils';
+#!/usr/bin/env node
+
+import { MethodArgument } from '../src/types';
+import { generateTree, generateWallets, saveConsumableDumpToFile, loadConsumableDumpFromFile, generateSecrets, saveSecrets, fundSecretsFromFile } from '../src/utils';
 import { Command } from 'commander';
 import { Interface } from 'ethers';
 
