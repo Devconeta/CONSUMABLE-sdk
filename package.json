@@ -14,18 +14,19 @@
         "typescript": "^5.5.4"
     },
     "name": "consumable-sdk",
-    "version": "1.0.6",
-    "main": "index.js",
+    "version": "1.0.8",
+    "main": "dist/src/index.js",
     "scripts": {
         "build": "tsc && chmod +x dist/bin/cli.js",
         "start": "ts-node bin/cli.ts",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",
-        "prettier:fix": "prettier --write src"
+        "prettier:fix": "prettier --write src",
+        "npm:deploy": "npm run build && npm publish"
     },
     "bin": {
-      "consumable-sdk": "./dist/bin/cli.js"
+        "consumable-sdk": "./dist/bin/cli.js"
     },
     "author": "",
     "license": "ISC",
