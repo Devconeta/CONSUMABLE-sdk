@@ -1,21 +1,29 @@
 #!/usr/bin/env node
 
+import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
 import { MethodArgument } from '../src/types';
 import { generateTree, generateWallets, saveConsumableDumpToFile, loadConsumableDumpFromFile, generateSecrets, saveSecrets, fundSecretsFromFile } from '../src/utils';
 import { Command } from 'commander';
-import { Interface } from 'ethers';
+import { HDNodeWallet, Interface } from 'ethers';
 
 // Primero: crear las wallets y crear el merkle tree con las addresses, el cual se lo damos al 
 // dev para que deployee el contrato. Al mismo tiempo, guardamos las private keys en un 
 // file para su uso como secrets en el stage 2
 // Creamos una funcion para esta stage1 la cual no recibe ningun parametro
 
-export const generateWalletsCommand = (amount: number, filename?: string): string => {
+export const generateWalletsCommand = (amount: number, filename?: string): {
+  wallets: HDNodeWallet[],
+  tree: StandardMerkleTree<string[]>,
+  filename: string
+} => {
   const wallets = generateWallets(amount);
-
   const tree = generateTree(wallets);
 
-  return saveConsumableDumpToFile(wallets, tree, filename);
+  return {
+    wallets,
+    tree,
+    filename: saveConsumableDumpToFile(wallets, tree, filename)
+  }
 }
 
 export const generateSecretsCommand = (
@@ -58,8 +66,10 @@ program.command("generateWallets")
     }
 
     try {
-      const savedFilename = generateWalletsCommand(numWallets, filename || `wallets_${Date.now()}.json`);
-      console.log(`Wallets saved to: ${savedFilename}`);
+      const generatedInfo = generateWalletsCommand(numWallets, filename || `wallets_${Date.now()}.json`);
+      
+      console.log(`Your tree's root: ${generatedInfo.tree.root}`);
+      console.log(`Deploy data generated and saved to: ${generatedInfo}`);
     } catch (error) {
       console.error("Error generating wallets:", error);
     }

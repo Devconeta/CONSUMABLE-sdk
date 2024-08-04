@@ -23,7 +23,7 @@ export const generateSecrets = (
   methodArgs: MethodArgument[],
   chainId: number
 ): string[] => {
-  
+
   const secrets = wallets.map((wallet) => encode({
     privateKey: wallet.privateKey,
     contractAddress,
@@ -39,14 +39,14 @@ export const generateSecrets = (
 }
 
 export const saveConsumableDumpToFile = (
-  wallets: HDNodeWallet[], 
+  wallets: HDNodeWallet[],
   tree: StandardMerkleTree<any>,
   fileName?: string
 ): string => {
   const timestamp = new Date().toISOString().replace(/:/g, '-');
-  
+
   const content = JSON.stringify({
-    tree: tree.dump(),
+    tree: { ...tree.dump(), root: tree.root },
     pks: wallets.map((w) => w.privateKey)
   })
 
@@ -63,7 +63,7 @@ export const saveSecrets = (secrets: string[], fileName?: string): string => {
 
 const saveData = (fileDir: string, fileName: string, data: any): string => {
   const outputDir = path.join(process.cwd(), fileDir);
-  if (!existsSync(outputDir)){
+  if (!existsSync(outputDir)) {
     mkdirSync(outputDir);
   }
 
@@ -74,7 +74,7 @@ const saveData = (fileDir: string, fileName: string, data: any): string => {
 }
 
 export const loadConsumableDumpFromFile = (fileName: string): {
-  wallets: Wallet[], 
+  wallets: Wallet[],
   tree: StandardMerkleTree<any>
 } => {
   const { tree: treeDump, pks } = JSON.parse(readFileSync(fileName, "utf8")) as ConsumableDump;
