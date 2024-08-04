@@ -13,8 +13,8 @@
         "ts-node-dev": "^2.0.0",
         "typescript": "^5.5.4"
     },
-    "name": "consumables-sdk",
-    "version": "1.0.2",
+    "name": "consumable-sdk",
+    "version": "1.0.0",
     "main": "index.js",
     "scripts": {
         "build": "tsc",
@@ -29,12 +29,12 @@
     "description": "Sdk to create consumable's contracts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Devconeta/consumables-sdk.git"
+        "url": "git+https://github.com/Devconeta/CONSUMABLE-sdk.git"
     },
     "bugs": {
-        "url": "https://github.com/Devconeta/consumables-sdk/issues"
+        "url": "https://github.com/Devconeta/CONSUMABLE-sdk/issues"
     },
-    "homepage": "https://github.com/Devconeta/consumables-sdk#readme",
+    "homepage": "https://github.com/Devconeta/CONSUMABLE-sdk#readme",
     "dependencies": {
         "@openzeppelin/merkle-tree": "^1.0.7",
         "commander": "^12.1.0",
