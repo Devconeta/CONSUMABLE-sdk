@@ -1,11 +1,15 @@
-import { Contract, HDNodeWallet, JsonRpcProvider, parseEther, Wallet } from "ethers";
+import { HDNodeWallet, JsonRpcProvider, parseEther, Wallet } from "ethers";
 import { ConsumableArguments, ConsumableDump, MethodArgument } from "./types";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import path from "path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 
 export const encode = (args: ConsumableArguments) => {
-  return Buffer.from(JSON.stringify(args)).toString('base64');
+  return Buffer.from(JSON.stringify(args), 'utf-8').toString('base64');
+}
+
+export const decode = (secret: any): ConsumableArguments => {
+  return JSON.parse(Buffer.from(secret, 'base64').toString('utf-8'));
 }
 
 export const generateWallets = (amount: number): HDNodeWallet[] => Array(amount).fill(0).map(() => Wallet.createRandom())
@@ -86,43 +90,65 @@ export const loadConsumableDumpFromFile = (fileName: string): {
   }
 }
 
-export const fundSecretsWithEth = async (
-  secrets: string[],
+export const fundPKsWithEth = async (
+  privateKeys: string[],
   funderPrivateKey: string,
   chainId: number,
   rpcUrl: string,
   amount: string // Amount of ETH to send to each wallet (in ETH, not Wei)
 ): Promise<void> => {
-  const provider = new JsonRpcProvider(rpcUrl, { chainId });
+  const provider = new JsonRpcProvider(rpcUrl, chainId);
   const funder = new Wallet(funderPrivateKey, provider);
 
   const amountWei = parseEther(amount);
 
-  console.log(`Funding ${secrets.length} wallets with ${amount} ETH each`);
+  console.log(`Funding ${privateKeys.length} wallets with ${amount} ETH each`);
 
-  const promises = secrets.map(async (secret, index) => {
-    const { privateKey } = JSON.parse(Buffer.from(secret, 'base64').toString('utf-8')) as ConsumableArguments;
+  let nonce = await provider.getTransactionCount(funder.address);
+
+  for (let index = 0; index < privateKeys.length; index++) {
+    const privateKey = privateKeys[index];
     const recipientWallet = new Wallet(privateKey, provider);
 
     console.log(`Funding wallet ${index + 1}: ${recipientWallet.address}`);
 
-    const tx = await funder.sendTransaction({
-      to: recipientWallet.address,
-      value: amountWei
-    });
+    let success = false;
+    let retries = 0;
+    const maxRetries = 3;
 
-    await tx.wait();
+    while (!success && retries < maxRetries) {
+      try {
+        const feeData = await provider.getFeeData();
+        const maxFeePerGas = feeData.maxFeePerGas ? feeData.maxFeePerGas * BigInt(2) : undefined;
+        const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas ? feeData.maxPriorityFeePerGas * BigInt(2) : undefined;
 
-    console.log(`Funded wallet ${index + 1}: ${recipientWallet.address} with ${amount} ETH`);
-  });
+        const tx = await funder.sendTransaction({
+          to: recipientWallet.address,
+          value: amountWei,
+          nonce,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          gasLimit: 21000,
+        });
 
-  try {
-    await Promise.all(promises);
-    console.log("All wallets funded successfully");
-  } catch (error) {
-    console.error("Error funding wallets:", error);
-    throw error;
+        await tx.wait();
+        success = true;
+        nonce++;
+
+        console.log(`Funded wallet ${index + 1}: ${recipientWallet.address} with ${amount} ETH`);
+      } catch (error) {
+        console.error(`Error funding wallet ${index + 1}:`, error);
+        retries++;
+        if (retries >= maxRetries) {
+          throw error;
+        }
+        // Wait for a short time before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
   }
+
+  console.log("All wallets funded successfully");
 }
 
 export const fundSecretsFromFile = async (
@@ -133,5 +159,5 @@ export const fundSecretsFromFile = async (
   amount: string
 ): Promise<void> => {
   const { pks } = JSON.parse(readFileSync(fileName, "utf8")) as ConsumableDump;
-  await fundSecretsWithEth(pks, funderPrivateKey, chainId, rpcUrl, amount);
+  await fundPKsWithEth(pks, funderPrivateKey, chainId, rpcUrl, amount);
 }

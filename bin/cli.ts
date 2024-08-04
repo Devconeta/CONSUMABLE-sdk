@@ -11,18 +11,19 @@ import { HDNodeWallet, Interface } from 'ethers';
 // file para su uso como secrets en el stage 2
 // Creamos una funcion para esta stage1 la cual no recibe ningun parametro
 
-export const generateWalletsCommand = (amount: number, filename?: string): {
+export const generateWalletsCommand = (amount: number, dumpFilename?: string): {
   wallets: HDNodeWallet[],
   tree: StandardMerkleTree<string[]>,
-  filename: string
+  fileName: string
 } => {
   const wallets = generateWallets(amount);
   const tree = generateTree(wallets);
+  const fileName = saveConsumableDumpToFile(wallets, tree, dumpFilename);
 
   return {
     wallets,
     tree,
-    filename: saveConsumableDumpToFile(wallets, tree, filename)
+    fileName
   }
 }
 
@@ -32,18 +33,18 @@ export const generateSecretsCommand = (
   methodName: string,
   methodArgs: MethodArgument[],
   chainId: number
-): { secrets: string[] } => {
+): { secrets: string[], fileName: string } => {
   const {
     wallets,
     tree,
   } = loadConsumableDumpFromFile(dumpFilename);
 
   const secrets = generateSecrets(tree, wallets, contractAddress, methodName, methodArgs, chainId);
-
-  saveSecrets(secrets);
+  const fileName = saveSecrets(secrets);
 
   return {
     secrets,
+    fileName
   };
 }
 
@@ -98,7 +99,8 @@ program.command("generateSecrets")
     })) as MethodArgument[] || [];
 
     const secrets = generateSecretsCommand(dumpFilename, contractAddress, methodName, methodArguments, chainId);
-    console.log(secrets);
+    console.log(secrets.secrets);
+    console.log(`Secrets generated and saved to: ${secrets.fileName}`);
   });
 
 program.command("fundWallets")

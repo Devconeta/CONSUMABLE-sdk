@@ -1,4 +1,5 @@
 import { ConsumableArguments } from "./types";
+import { decode } from "./utils";
 
 export class Consumable {
   private readonly base64Secret: string;
@@ -8,8 +9,7 @@ export class Consumable {
   }
 
   public consume(): ConsumableArguments {
-    const decodedSecret = Buffer.from(this.base64Secret, 'base64').toString('utf-8');
-    const { privateKey, contractAddress, merkleProof, methodName, methodArgs, chainId } = JSON.parse(decodedSecret) as ConsumableArguments;
+    const { privateKey, contractAddress, merkleProof, methodName, methodArgs, chainId } = decode(this.base64Secret) as ConsumableArguments;
 
     return {
       contractAddress,

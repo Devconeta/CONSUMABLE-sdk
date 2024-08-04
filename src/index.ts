@@ -7,7 +7,7 @@ export {
   generateSecrets,
   saveSecrets,
   fundSecretsFromFile,
-  fundSecretsWithEth
+  fundPKsWithEth
 } from './utils';
 
 // Export types
