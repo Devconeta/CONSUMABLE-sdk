@@ -70,7 +70,7 @@ program.command("generateWallets")
       const generatedInfo = generateWalletsCommand(numWallets, filename || `wallets_${Date.now()}.json`);
       
       console.log(`Your tree's root: ${generatedInfo.tree.root}`);
-      console.log(`Deploy data generated and saved to: ${generatedInfo}`);
+      console.log(`Deploy data generated and saved to: ${generatedInfo.fileName}`);
     } catch (error) {
       console.error("Error generating wallets:", error);
     }
