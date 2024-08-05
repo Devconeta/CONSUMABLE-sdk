@@ -8,7 +8,7 @@ export {
   saveSecrets,
   fundSecretsFromFile,
   fundPKsWithEth
-} from './utils';
+} from './utils.node';
 
 // Export types
 export { MethodArgument, ConsumableArguments } from './types';

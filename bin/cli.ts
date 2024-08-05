@@ -2,7 +2,7 @@
 
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
 import { MethodArgument } from '../src/types';
-import { generateTree, generateWallets, saveConsumableDumpToFile, loadConsumableDumpFromFile, generateSecrets, saveSecrets, fundSecretsFromFile } from '../src/utils';
+import { generateTree, generateWallets, saveConsumableDumpToFile, loadConsumableDumpFromFile, generateSecrets, saveSecrets, fundSecretsFromFile } from '../src/utils.node';
 import { Command } from 'commander';
 import { HDNodeWallet, Interface } from 'ethers';
 

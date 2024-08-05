@@ -8,10 +8,6 @@ export const encode = (args: ConsumableArguments) => {
   return Buffer.from(JSON.stringify(args), 'utf-8').toString('base64');
 }
 
-export const decode = (secret: any): ConsumableArguments => {
-  return JSON.parse(Buffer.from(secret, 'base64').toString('utf-8'));
-}
-
 export const generateWallets = (amount: number): HDNodeWallet[] => Array(amount).fill(0).map(() => Wallet.createRandom())
 
 export const generateTree = (wallets: HDNodeWallet[]): StandardMerkleTree<string[]> => {
